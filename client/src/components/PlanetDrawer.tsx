@@ -9,7 +9,6 @@ interface PlanetDrawerProps {
   onClose: () => void;
 }
 
-// Earth baseline for comparison
 const EARTH = {
   mass: 1,
   radius: 1,
@@ -17,10 +16,14 @@ const EARTH = {
   semi_major_axis: 1.0,
 };
 
+const n = (val: number | null | undefined): number => parseFloat(String(val ?? 0)) || 0;
+const fmt = (val: number | null | undefined, decimals = 2): string =>
+  val != null ? n(val).toFixed(decimals) : '—';
+
 const CompareBar: React.FC<{ label: string; earthVal: number; planetVal: number | null; unit: string }> = ({
   label, earthVal, planetVal, unit,
 }) => {
-  const pv = planetVal ?? 0;
+  const pv = n(planetVal);
   const max = Math.max(earthVal, pv) * 1.2 || 1;
   const earthPct = (earthVal / max) * 100;
   const planetPct = (pv / max) * 100;
@@ -63,17 +66,14 @@ export const PlanetDrawer: React.FC<PlanetDrawerProps> = ({ planetId, onClose })
 
   return (
     <>
-      {/* Backdrop */}
       <div
         onClick={onClose}
         className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
       />
 
-      {/* Drawer */}
       <div
         className={`fixed top-0 right-0 h-full w-full max-w-md bg-slate-900 border-l border-slate-700/70 z-50 flex flex-col transition-transform duration-300 ${visible ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-slate-700/60">
           <span className="text-xs font-mono text-slate-400 uppercase tracking-widest">Planet Analysis</span>
           <button onClick={onClose} className="text-slate-400 hover:text-white text-xl leading-none transition-colors">✕</button>
@@ -90,7 +90,6 @@ export const PlanetDrawer: React.FC<PlanetDrawerProps> = ({ planetId, onClose })
 
           {!loading && planet && (
             <>
-              {/* Name & Score */}
               <div className="flex items-center gap-4 mb-5">
                 <ScoreRing score={planet.biosignature_score} size={72} />
                 <div>
@@ -100,17 +99,15 @@ export const PlanetDrawer: React.FC<PlanetDrawerProps> = ({ planetId, onClose })
                 </div>
               </div>
 
-              {/* Discovery */}
               <Section title="Discovery">
                 <Row label="Method" value={planet.discovery_method ?? '—'} />
-                <Row label="Distance" value={planet.distance_pc != null ? `${planet.distance_pc.toFixed(1)} pc` : '—'} />
+                <Row label="Distance" value={planet.distance_pc != null ? `${fmt(planet.distance_pc, 1)} pc` : '—'} />
               </Section>
 
-              {/* Stellar */}
               <Section title="Host Star">
-                <Row label="T_eff" value={planet.stellar_teff_k != null ? `${planet.stellar_teff_k.toFixed(0)} K` : '—'} />
-                <Row label="Mass" value={planet.stellar_mass_solar != null ? `${planet.stellar_mass_solar.toFixed(2)} M☉` : '—'} />
-                <Row label="Luminosity" value={planet.stellar_luminosity_log10 != null ? `10^${planet.stellar_luminosity_log10.toFixed(2)} L☉` : '—'} />
+                <Row label="T_eff" value={planet.stellar_teff_k != null ? `${fmt(planet.stellar_teff_k, 0)} K` : '—'} />
+                <Row label="Mass" value={planet.stellar_mass_solar != null ? `${fmt(planet.stellar_mass_solar)} M☉` : '—'} />
+                <Row label="Luminosity" value={planet.stellar_luminosity_log10 != null ? `10^${fmt(planet.stellar_luminosity_log10)} L☉` : '—'} />
                 {planet.computed && (
                   <>
                     <Row label="HZ Inner" value={planet.computed.habitable_zone_inner_au ? `${planet.computed.habitable_zone_inner_au} AU` : '—'} />
@@ -119,7 +116,6 @@ export const PlanetDrawer: React.FC<PlanetDrawerProps> = ({ planetId, onClose })
                 )}
               </Section>
 
-              {/* Earth Comparison */}
               <Section title="vs. Earth">
                 <CompareBar label="Mass" earthVal={EARTH.mass} planetVal={planet.planet_mass_earth} unit="M⊕" />
                 <CompareBar label="Radius" earthVal={EARTH.radius} planetVal={planet.planet_radius_earth} unit="R⊕" />
@@ -127,13 +123,12 @@ export const PlanetDrawer: React.FC<PlanetDrawerProps> = ({ planetId, onClose })
                 <CompareBar label="Semi-Major Axis" earthVal={EARTH.semi_major_axis} planetVal={planet.semi_major_axis_au} unit="AU" />
               </Section>
 
-              {/* Atmosphere */}
               <Section title="Atmosphere (Simulation)">
                 <Row label="Has Spectral Data" value={planet.has_spectral_data ? 'Yes' : 'No'} />
-                <Row label="O₂" value={`${planet.o2_abundance_pct?.toFixed(1) ?? 0}%`} />
-                <Row label="CH₄" value={`${planet.ch4_abundance_pct?.toFixed(1) ?? 0}%`} />
-                <Row label="H₂O" value={`${planet.h2o_abundance_pct?.toFixed(1) ?? 0}%`} />
-                <Row label="CO₂" value={`${planet.co2_abundance_pct?.toFixed(1) ?? 0}%`} />
+                <Row label="O₂" value={`${fmt(planet.o2_abundance_pct, 1)}%`} />
+                <Row label="CH₄" value={`${fmt(planet.ch4_abundance_pct, 1)}%`} />
+                <Row label="H₂O" value={`${fmt(planet.h2o_abundance_pct, 1)}%`} />
+                <Row label="CO₂" value={`${fmt(planet.co2_abundance_pct, 1)}%`} />
               </Section>
             </>
           )}
