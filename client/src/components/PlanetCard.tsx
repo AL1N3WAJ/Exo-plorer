@@ -8,6 +8,9 @@ interface PlanetCardProps {
   onClick: (p: Planet) => void;
 }
 
+const fmt = (val: number | null | undefined, decimals = 2): string =>
+  val != null ? parseFloat(String(val)).toFixed(decimals) : '—';
+
 export const PlanetCard: React.FC<PlanetCardProps> = ({ planet, onClick }) => {
   return (
     <div
@@ -22,9 +25,9 @@ export const PlanetCard: React.FC<PlanetCardProps> = ({ planet, onClick }) => {
           <p className="text-xs text-slate-500 font-mono mt-0.5">{planet.hostname}</p>
 
           <div className="grid grid-cols-3 gap-2 mt-3">
-            <Stat label="Mass" value={planet.planet_mass_earth != null ? `${parseFloat(String(planet.planet_mass_earth)).toFixed(2)} M⊕` : '—'} />
-            <Stat label="Radius" value={planet.planet_radius_earth != null ? `${parseFloat(String(planet.planet_radius_earth)).toFixed(2)} R⊕` : '—'} />
-            <Stat label="Orbit" value={planet.semi_major_axis_au != null ? `${planet.semi_major_axis_au.toFixed(3)} AU` : '—'} />
+            <Stat label="Mass" value={planet.planet_mass_earth != null ? `${fmt(planet.planet_mass_earth)} M⊕` : '—'} />
+            <Stat label="Radius" value={planet.planet_radius_earth != null ? `${fmt(planet.planet_radius_earth)} R⊕` : '—'} />
+            <Stat label="Orbit" value={planet.semi_major_axis_au != null ? `${fmt(planet.semi_major_axis_au, 3)} AU` : '—'} />
           </div>
 
           <Badges planet={planet} />
